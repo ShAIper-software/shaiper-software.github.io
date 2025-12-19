@@ -5291,30 +5291,41 @@
 <li><code>git flow feature start feature_x</code> (initializes the appropriate local branch and switches the developer to it).</li>
 <li>Then continue developing the feature, add changes via the <code>git add ...</code> command, commit the changes via the <code>git commit -m 'commit message'</code> command. The commit message should contain a brief description of the changes being commited and, if available, link to an issue in the repository via the <code>#N</code> command (where <code>N</code> is the number of the issue).</li>
 <li>Call <code>git flow feature publish</code> to push your feature to the remote repository.</li>
-<li>Once the feature is ready to be pushed to the development branch, call <code>git flow feature finish</code>. This switches the developer to the <code>development</code> branch and updates its content with that of the branch <code>feature/feature_x</code>. The branch <code>feature/feature_x</code> is then deleted.</li>
-<li>Call <code>git push</code> to push the updated development branch to the remote repository.</li>
+<li>Once the feature is ready to be finished and closed, call the finishing script via <code>bash git_finish_feature.sh</code>. It is not a foolproof script which does the following:</li>
+<li>detects if the user is in the correct branch family: <code>feature/*</code></li>
+<li>if so, it pulls the up-to-date version of the branch and commits local changes</li>
+<li>then it increments the minor version by one and sets the patch version to zero</li>
+<li>then it commits the versioning changes and closes the feature by calling <code>git flow feature finish</code></li>
+<li>updates the remote development branch</li>
 </ul>
 </li>
-<li>When the developer wants to work on another feature <code>feature_y</code> developed by someone else, call the <code>git flow feature pull origin feature_y</code> command.</li>
 </ul>
 <h3 id="hotfix-development">Hotfix Development<a class="headerlink" href="#hotfix-development" title="Permanent link">&para;</a></h3>
 <p>Hotfixes are urgent bug fixes, the bugs should be pushed to the production branch and development branches as soon as possible.</p>
 <ul>
-<li>When working on a hotfix with version <code>VERSION</code>, they should perform the following commands:<ul>
-<li><code>git flow hotfix start VERSION</code> (initializes the appropriate local branch asn switches the developer to it).</li>
+<li>When working on a hotfix <code>hotfix_x</code>, they should perform the following commands:<ul>
+<li><code>git flow hotfix start hotfix_x</code> (initializes the appropriate local branch asn switches the developer to it).</li>
 <li>Then continue developing the hotfix, add changes via the <code>git add ...</code> command, commit the changes via the <code>git commit -m 'commit message'</code> command.</li>
-<li>Once the hotfix is ready to be pushed to the development branch, call <code>git flow hotfix finish VERSION</code>. This switches the developer to the <code>development</code> branch and updates its content with that of the branch <code>hotfix/VERSION</code>. The hotfix is also merged to the <code>master</code> branch, which is also tagged with the version change caused by the hotfix. The branch <code>hotfix/VERSION</code> is then deleted.</li>
+<li>Once the hotfix is ready to be finished and closed, call the finishing script via <code>bash git_finish_hotfix.sh</code>. It is not a foolproof script which does the following:</li>
+<li>detects if the user is in the correct branch family: <code>hotfix/*</code> or <code>development</code></li>
+<li>if so, it pulls the up-to-date version of the branch and commits local changes</li>
+<li>then it increments the patch version by one</li>
+<li>then it commits the versioning changes and closes the feature by calling either <code>git flow hotfix finish</code> or <code>git push</code> (if on development branch)</li>
+<li>updates the remote development branch</li>
 </ul>
 </li>
 </ul>
 <h3 id="making-a-new-release">Making a new Release<a class="headerlink" href="#making-a-new-release" title="Permanent link">&para;</a></h3>
 <p>Release branch is designed for preparation of a new production release.
 Hotfixes are urgent bug fixes, the bugs should be pushed to the production branch and development branches as soon as possible.</p>
+<p>We supply a single sincript <code>git_publish_release.sh</code> which publishes a new release online. It performs the following steps:</p>
 <ul>
-<li>To create a new release branch for version <code>VERSION</code>, call the <code>git flow release start RELEASE</code> command.</li>
-<li>Allow other developers to push changes to the release branch via the <code>git flow release publish RELEASE</code> command.</li>
-<li>To finish the relase of a new version (big deal!), call the <code>git flow release finish RELEASE</code> command.</li>
-<li>Push the appropriate versioning via the <code>git push origin --tags</code> command.</li>
+<li>Ensures that you are on the <code>development</code> branch</li>
+<li>commits local changes and pulls the remote <code>development</code> branch</li>
+<li>initializes the new release branch via <code>git flow release start $VERSION</code>, where <code>$VERSION</code> is pulled from the source code</li>
+<li>finishes the new release branch via <code>git flow release finish $VERSION</code></li>
+<li>pushes the <code>master</code> and <code>development</code> branches to remote repository.</li>
+<li>pushes the new version tag to the remote repository</li>
 </ul>
 <h2 id="code-quality">Code Quality<a class="headerlink" href="#code-quality" title="Permanent link">&para;</a></h2>
 <p>Developers can call <code>./install/code_check.sh</code> script to automatically improve and analyze the quality of the produced code.</p>
